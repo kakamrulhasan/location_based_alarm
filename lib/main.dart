@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
             case AppFlowState.location:
               return const LocationScreen();
             case AppFlowState.home:
-              return const HomeScreen();
+              return const HomeScreen(location: '',);
           }
         },
       ),
