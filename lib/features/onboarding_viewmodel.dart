@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class OnboardingViewModel extends ChangeNotifier {
+enum AppFlowState { onboarding, location, home }
+
+class AppFlowViewModel extends ChangeNotifier {
+  AppFlowState state = AppFlowState.onboarding;
   int currentPage = 0;
 
   void updatePage(int index) {
@@ -9,10 +11,13 @@ class OnboardingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> completeOnboarding() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("onboarding_done", true);
+  void finishOnboarding() {
+    state = AppFlowState.location;
+    notifyListeners();
+  }
 
-    // Navigation will be added later
+  void goToHome() {
+    state = AppFlowState.home;
+    notifyListeners();
   }
 }

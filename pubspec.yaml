@@ -9,7 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  geolocator: ^14.0.2
   google_fonts: ^6.3.3
+  permission_handler: ^12.0.1
   provider: ^6.1.5+1
   shared_preferences: ^2.5.4
   smooth_page_indicator: ^2.0.1

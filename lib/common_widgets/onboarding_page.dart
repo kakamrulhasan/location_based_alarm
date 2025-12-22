@@ -16,9 +16,11 @@ class OnboardingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-
         ClipRRect(
-          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(32),bottomRight: Radius.circular(32)),
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(32),
+            bottomRight: Radius.circular(32),
+          ),
           child: Image.network(
             imageUrl,
             height: 340,
@@ -53,10 +55,7 @@ class OnboardingPage extends StatelessWidget {
               Text(
                 description,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.white70,
-                ),
+                style: const TextStyle(fontSize: 14, color: Colors.white70),
               ),
             ],
           ),

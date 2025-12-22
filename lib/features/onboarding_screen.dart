@@ -15,10 +15,15 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _controller = PageController();
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<OnboardingViewModel>();
+    final vm = context.watch<AppFlowViewModel>();
 
     return Scaffold(
       body: Container(
@@ -65,7 +70,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       top: 56,
                       right: 16,
                       child: TextButton(
-                        onPressed: vm.completeOnboarding,
+                        onPressed: vm.finishOnboarding,
                         child: const Text(
                           AppTexts.skip,
                           style: TextStyle(
@@ -109,7 +114,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     onPressed: () {
                       if (vm.currentPage == 2) {
-                        vm.completeOnboarding();
+                        vm.finishOnboarding();
                       } else {
                         _controller.nextPage(
                           duration: const Duration(milliseconds: 300),

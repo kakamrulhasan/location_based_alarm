@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_17/features/onboarding_screen.dart';
-import 'package:flutter_application_17/features/onboarding_viewmodel.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_application_17/features/home_screen.dart';
 import 'package:provider/provider.dart';
-
+import 'features/onboarding_viewmodel.dart';
+import 'features/onboarding_screen.dart';
+import 'features/location_screen.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => OnboardingViewModel(),
-        ),
+        ChangeNotifierProvider(create: (_) => AppFlowViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -23,15 +21,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        textTheme: GoogleFonts.figtreeTextTheme(
-          Theme.of(context).textTheme,
-          
-        ).apply(letterSpacingFactor: 1.15),
+      home: Consumer<AppFlowViewModel>(
+        builder: (context, vm, _) {
+          switch (vm.state) {
+            case AppFlowState.onboarding:
+              return const OnboardingScreen();
+            case AppFlowState.location:
+              return const LocationScreen();
+            case AppFlowState.home:
+              return const HomeScreen();
+          }
+        },
       ),
-      home: OnboardingScreen(),
     );
   }
 }
