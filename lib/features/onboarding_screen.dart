@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_17/common_widgets/onboarding_page.dart';
+import 'package:flutter_application_17/common_widgets/gradient_container.dart'; // <-- import gradient
+import 'package:flutter_application_17/constants/app_colors.dart';
 import 'package:flutter_application_17/constants/app_texts.dart';
 import 'package:flutter_application_17/features/onboarding_viewmodel.dart';
 import 'package:flutter_application_17/networks/image_urls.dart';
@@ -26,18 +28,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final vm = context.watch<AppFlowViewModel>();
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 28, 20, 143),
-              Color.fromARGB(255, 14, 6, 74),
-              Color.fromARGB(255, 24, 11, 112),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: GradientContainer( // <-- use GradientContainer here
         child: SafeArea(
           child: Column(
             children: [
@@ -65,7 +56,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ],
                     ),
-
                     Positioned(
                       top: 56,
                       right: 16,
@@ -84,8 +74,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ],
                 ),
               ),
-
-              /// Dots Indicator
               SmoothPageIndicator(
                 controller: _controller,
                 count: 3,
@@ -96,10 +84,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   dotColor: Colors.white12,
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              /// Next Button
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: SizedBox(
@@ -107,7 +92,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   height: 52,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 76, 49, 200),
+                      backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(26),
                       ),
@@ -129,7 +114,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
             ],
           ),

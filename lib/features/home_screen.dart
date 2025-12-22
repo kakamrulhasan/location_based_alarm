@@ -1,7 +1,14 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_17/common_widgets/gradient_container.dart';
+import 'package:flutter_application_17/constants/app_colors.dart';
+import 'package:flutter_application_17/helpers/data_formatter.dart';
+import 'package:flutter_application_17/networks/notification_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'alarm_tile.dart';
 
 class HomeScreen extends StatefulWidget {
-  final String location; // pass from LocationScreen
+  final String location;
   const HomeScreen({super.key, required this.location});
 
   @override
@@ -11,96 +18,62 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> alarms = [];
 
-  Future<void> _pickTime() async {
-    TimeOfDay? time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
+  @override
+  void initState() {
+    super.initState();
+    _loadAlarms();
+  }
 
-    if (time != null) {
-      final now = DateTime.now();
-      final alarmDateTime =
-          DateTime(now.year, now.month, now.day, time.hour, time.minute);
-
-      setState(() {
-        alarms.add({
-          "time": alarmDateTime,
-          "enabled": true,
-        });
-      });
+  Future<void> _loadAlarms() async {
+    final prefs = await SharedPreferences.getInstance();
+    final alarmsJson = prefs.getString('alarms');
+    if (alarmsJson != null) {
+      setState(() => alarms = List<Map<String, dynamic>>.from(jsonDecode(alarmsJson)));
     }
   }
 
-  String _formatDateTime(DateTime dt) {
-    return "${dt.day}-${dt.month}-${dt.year}";
+  Future<void> _saveAlarms() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('alarms', jsonEncode(alarms));
   }
 
-  String _formatTime(DateTime dt) {
-    final hour = dt.hour > 12 ? dt.hour - 12 : dt.hour;
-    final ampm = dt.hour >= 12 ? "PM" : "AM";
-    final min = dt.minute.toString().padLeft(2, '0');
-    return "$hour:$min $ampm";
+  Future<void> _pickTime() async {
+    final TimeOfDay? time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (time == null) return;
+
+    final now = DateTime.now();
+    final alarmTime = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    final id = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+    setState(() {
+      alarms.add({"id": id, "time": alarmTime.toIso8601String(), "enabled": true});
+    });
+
+    await NotificationService().schedule(alarmTime, id: id);
+    await _saveAlarms();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         onPressed: _pickTime,
-        child: const Icon(Icons.add),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0F0C3F), Color(0xFF1B1F6B), Color(0xFF2E2B8F)],
-          ),
-        ),
+      body: GradientContainer(
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Selected Location",
-                    style: TextStyle(color: Colors.white70)),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white12,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.location_on, color: Colors.white70),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.location, // dynamic city
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _locationCard(),
                 const SizedBox(height: 24),
-                const Text("Alarms", style: TextStyle(color: Colors.white)),
+                const Text("Alarms", style: TextStyle(color: Colors.white, fontSize: 18)),
                 const SizedBox(height: 12),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: alarms.length,
-                    itemBuilder: (context, index) {
-                      final alarm = alarms[index];
-                      return _alarmTile(
-                        _formatTime(alarm['time']),
-                        _formatDateTime(alarm['time']),
-                        alarm['enabled'],
-                        index,
-                      );
-                    },
-                  ),
-                ),
+                _alarmListView(),
               ],
             ),
           ),
@@ -109,37 +82,41 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _alarmTile(
-      String time, String date, bool enabled, int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white12,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(time,
-                  style: const TextStyle(color: Colors.white, fontSize: 18)),
-              Text(date, style: const TextStyle(color: Colors.white60)),
-            ],
-          ),
-          Switch(
-            value: enabled,
-            onChanged: (val) {
-              setState(() {
-                alarms[index]['enabled'] = val;
-              });
-            },
-            activeColor: Colors.deepPurple,
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _locationCard() => Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(30)),
+        child: Row(
+          children: [
+            const Icon(Icons.location_pin, color: AppColors.whiteLight),
+            const SizedBox(width: 8),
+            Expanded(child: Text(widget.location, style: const TextStyle(color: AppColors.whiteLight))),
+          ],
+        ),
+      );
+
+  Widget _alarmListView() => Expanded(
+        child: ListView.builder(
+          itemCount: alarms.length,
+          itemBuilder: (context, index) {
+            final alarm = alarms[index];
+            final alarmTime = DateTime.parse(alarm['time']);
+            return AlarmTile(
+              time: DateFormatter.formatTime(alarmTime),
+              date: DateFormatter.formatDate(alarmTime),
+              enabled: alarm['enabled'],
+              onToggle: (val) async {
+                setState(() => alarms[index]['enabled'] = val);
+
+                if (val) {
+                  await NotificationService().schedule(alarmTime, id: alarm['id']);
+                } else {
+                  await NotificationService().cancel(alarm['id']);
+                }
+
+                await _saveAlarms();
+              },
+            );
+          },
+        ),
+      );
 }

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_17/features/home_screen.dart';
+import 'package:flutter_application_17/networks/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'features/onboarding_viewmodel.dart';
 import 'features/onboarding_screen.dart';
 import 'features/location_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().init();
   runApp(
     MultiProvider(
       providers: [

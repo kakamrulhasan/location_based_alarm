@@ -12,4 +12,6 @@ class AppTexts {
 
   static const skip = 'Skip';
   static const next = 'Next';
+
+  
 }
