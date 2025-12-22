@@ -10,6 +10,6 @@ class AppTexts {
   static const desc3 =
       "Travel made simple and exciting—discover places you’ll love.";
 
-  static const skip = 'SKIP';
+  static const skip = 'Skip';
   static const next = 'Next';
 }
