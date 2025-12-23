@@ -6,6 +6,8 @@ class AppFlowViewModel extends ChangeNotifier {
   AppFlowState state = AppFlowState.onboarding;
   int currentPage = 0;
 
+  var location;
+
   void updatePage(int index) {
     currentPage = index;
     notifyListeners();
@@ -16,7 +18,7 @@ class AppFlowViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void goToHome() {
+  void goToHome(String s) {
     state = AppFlowState.home;
     notifyListeners();
   }

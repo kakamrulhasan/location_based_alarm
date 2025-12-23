@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_17/helpers/permission_helper.dart';
 import 'package:geolocator/geolocator.dart';
-import '../../helpers/permission_helper.dart';
 
 class LocationViewModel extends ChangeNotifier {
   String? locationText;
