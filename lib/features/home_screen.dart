@@ -28,7 +28,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final prefs = await SharedPreferences.getInstance();
     final alarmsJson = prefs.getString('alarms');
     if (alarmsJson != null) {
-      setState(() => alarms = List<Map<String, dynamic>>.from(jsonDecode(alarmsJson)));
+      setState(
+        () => alarms = List<Map<String, dynamic>>.from(jsonDecode(alarmsJson)),
+      );
     }
   }
 
@@ -38,15 +40,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _pickTime() async {
-    final TimeOfDay? time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    final TimeOfDay? time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
     if (time == null) return;
 
     final now = DateTime.now();
-    final alarmTime = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    final alarmTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
     final id = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
     setState(() {
-      alarms.add({"id": id, "time": alarmTime.toIso8601String(), "enabled": true});
+      alarms.add({
+        "id": id,
+        "time": alarmTime.toIso8601String(),
+        "enabled": true,
+      });
     });
 
     await NotificationService().schedule(alarmTime, id: id);
@@ -71,7 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 _locationCard(),
                 const SizedBox(height: 24),
-                const Text("Alarms", style: TextStyle(color: Colors.white, fontSize: 18)),
+                const Text(
+                  "Alarms",
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
                 const SizedBox(height: 12),
                 _alarmListView(),
               ],
@@ -83,40 +101,48 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _locationCard() => Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(30)),
-        child: Row(
-          children: [
-            const Icon(Icons.location_pin, color: AppColors.whiteLight),
-            const SizedBox(width: 8),
-            Expanded(child: Text(widget.location, style: const TextStyle(color: AppColors.whiteLight))),
-          ],
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: Colors.white12,
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Row(
+      children: [
+        const Icon(Icons.location_pin, color: AppColors.whiteLight),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            widget.location,
+            style: const TextStyle(color: AppColors.whiteLight),
+          ),
         ),
-      );
+      ],
+    ),
+  );
 
   Widget _alarmListView() => Expanded(
-        child: ListView.builder(
-          itemCount: alarms.length,
-          itemBuilder: (context, index) {
-            final alarm = alarms[index];
-            final alarmTime = DateTime.parse(alarm['time']);
-            return AlarmTile(
-              time: DateFormatter.formatTime(alarmTime),
-              date: DateFormatter.formatDate(alarmTime),
-              enabled: alarm['enabled'],
-              onToggle: (val) async {
-                setState(() => alarms[index]['enabled'] = val);
+    child: ListView.builder(
+      itemCount: alarms.length,
+      itemBuilder: (context, index) {
+        final alarm = alarms[index];
+        final alarmTime = DateTime.parse(alarm['time']);
+        return AlarmTile(
+          time: DateFormatter.formatTime(alarmTime),
+          date: DateFormatter.formatDate(alarmTime),
+          enabled: alarm['enabled'],
+          onToggle: (val) async {
+            setState(() => alarms[index]['enabled'] = val);
 
-                if (val) {
-                  await NotificationService().schedule(alarmTime, id: alarm['id']);
-                } else {
-                  await NotificationService().cancel(alarm['id']);
-                }
+            if (val) {
+              await NotificationService().schedule(alarmTime, id: alarm['id']);
+            } else {
+              await NotificationService().cancel(alarm['id']);
+            }
 
-                await _saveAlarms();
-              },
-            );
+            await _saveAlarms();
           },
-        ),
-      );
+        );
+      },
+    ),
+  );
 }

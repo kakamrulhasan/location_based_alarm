@@ -1,7 +1,6 @@
-// notification_service.dart
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
+import 'dart:ui';
+
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class NotificationService {
   // Singleton pattern
@@ -9,41 +8,47 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
-
-  /// Initialize notifications
   Future<void> init() async {
-    tz.initializeTimeZones();
-
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const settings = InitializationSettings(android: androidSettings);
-
-    await _notifications.initialize(settings);
-  }
-
-  /// Schedule a notification for a given time
-  Future<void> schedule(DateTime alarmTime, {required int id}) async {
-    await _notifications.zonedSchedule(
-      id,
-      'Alarm',
-      'Alarm time reached',
-      tz.TZDateTime.from(alarmTime, tz.local),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'alarm_channel',
-          'Alarms',
-          channelDescription: 'Alarm notifications',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-      ),
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    await AwesomeNotifications().initialize(
+      null, // icon, default null uses app icon
+      [
+        NotificationChannel(
+          channelKey: 'alarm_channel',
+          channelName: 'Alarms',
+          channelDescription: 'Notification channel for alarms',
+          defaultColor: const Color(0xFF9D50DD),
+          ledColor: const Color(0xFFFFFFFF),
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          playSound: true,
+        )
+      ],
     );
   }
 
-  /// Cancel a scheduled notification
+  Future<void> schedule(DateTime dateTime, {required int id}) async {
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: id,
+        channelKey: 'alarm_channel',
+        title: 'Alarm',
+        body: 'Your alarm is ringing!',
+        notificationLayout: NotificationLayout.Default,
+      ),
+      schedule: NotificationCalendar(
+        year: dateTime.year,
+        month: dateTime.month,
+        day: dateTime.day,
+        hour: dateTime.hour,
+        minute: dateTime.minute,
+        second: 0,
+        millisecond: 0,
+        repeats: false,
+      ),
+    );
+  }
+
   Future<void> cancel(int id) async {
-    await _notifications.cancel(id);
+    await AwesomeNotifications().cancel(id);
   }
 }
