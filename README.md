@@ -51,7 +51,7 @@ Screenshots are located in the `screenshots/` folder.
 
 | Onboarding | Location | Home |
 |-----------|----------|------|
-| ![](screenshots/onboard.jpg) | ![](screenshots/location.jpg) | ![](screenshots/home.jpg) | ![](screenshots/alarm.jpg)
+| ![](screenshots/onboard.jpg) | ![](screenshots/location.jpg) | ![](screenshots/location_permission.jpg) | ![](screenshots/home.jpg) | ![](screenshots/alarm.jpg)
 
 ---
 
